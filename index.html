@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ajustes - Panel Logística</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+
+<style>
+:root {
+  --bg-dark: #111827;
+  --bg-medium: #1F2937;
+  --text-light: #F9FAFB;
+  --text-medium: #9CA3AF;
+  --accent-blue: #3B82F6;
+  --accent-green: #10B981;
+  --accent-red: #EF4444;
+  --font-family: 'Poppins', sans-serif;
+  --border-radius-md: 16px;
+  --border-radius-sm: 10px;
+}
+html, body {
+  margin: 0;
+  font-family: var(--font-family);
+  color: var(--text-light);
+  background-color: var(--bg-dark);
+  background-image: 
+    radial-gradient(at 47% 33%, hsl(225, 39%, 30%) 0, transparent 59%), 
+    radial-gradient(at 82% 65%, hsl(253, 16%, 7%) 0, transparent 55%);
+}
+.container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 20px;
+  min-height: 100vh;
+}
+.panel-ajustes {
+  width: 100%;
+  max-width: 600px;
+  padding: 30px;
+  border-radius: var(--border-radius-md);
+  background: rgba(31, 41, 55, 0.7);
+  backdrop-filter: blur(15px);
+  -webkit-backdrop-filter: blur(15px);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+}
+h1 {
+  text-align: center;
+  margin-bottom: 30px;
+}
+.form-group {
+  margin-bottom: 20px;
+}
+.form-group label {
+  display: block;
+  margin-bottom: 8px;
+  color: var(--text-medium);
+  font-weight: 600;
+}
+.form-group input {
+  width: 100%;
+  padding: 12px;
+  border-radius: var(--border-radius-sm);
+  color: var(--text-light);
+  font-size: 16px;
+  font-family: var(--font-family);
+  background: rgba(17, 24, 39, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-sizing: border-box;
+}
+.form-group input:focus {
+  outline: none;
+  border-color: var(--accent-blue);
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.5);
+}
+.btn {
+  background: rgba(59, 130, 246, 0.25);
+  color: var(--text-light);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  padding: 14px 28px;
+  border-radius: var(--border-radius-sm);
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background .2s ease;
+  width: 100%;
+  margin-top: 10px;
+}
+.btn:hover { background: rgba(59, 130, 246, 0.4); }
+.btn.btn-save { background-color: rgba(16, 185, 129, 0.3); }
+.btn.btn-save:hover { background-color: rgba(16, 185, 129, 0.5); }
+.btn.btn-back { background-color: rgba(249, 250, 251, 0.2); }
+.btn.btn-back:hover { background-color: rgba(249, 250, 251, 0.35); }
+#loader { text-align: center; font-size: 1.2rem; }
+.hidden { display: none; }
+</style>
+</head>
+<body>
+
+<div class="container">
+    <div id="panelAjustes" class="panel-ajustes hidden">
+        <h1>🔑 Administración de Contraseñas</h1>
+        <form id="formContraseñas">
+            </form>
+        <button id="btnGuardar" class="btn btn-save">Guardar Cambios</button>
+        <button onclick="window.location.href='index.html'" class="btn btn-back">Volver al Panel</button>
+    </div>
+    <div id="loader">Cargando...</div>
+</div>
+
+<script>
+// --- Configuración de Firebase (debe ser la misma que en index.html) ---
+const firebaseConfig = {
+  apiKey: "AIzaSyDahnSPvBNTYot00JCn5CBjggAYFVGhbjE",
+  authDomain: "panel-logistica-simple.firebaseapp.com",
+  databaseURL: "https://panel-logistica-simple-default-rtdb.firebaseio.com",
+  projectId: "panel-logistica-simple",
+  storageBucket: "panel-logistica-simple.appspot.com",
+  messagingSenderId: "528779971851",
+  appId: "1:528779971851:web:90241469a69be3a5a4e60e"
+};
+
+firebase.initializeApp(firebaseConfig);
+const database = firebase.database();
+
+// --- Lógica de la página de Ajustes ---
+window.addEventListener('load', () => {
+    firebase.auth().signInAnonymously()
+        .then(() => {
+            autenticarAdmin();
+        })
+        .catch(error => {
+            console.error("Error de autenticación anónima:", error);
+            document.getElementById('loader').textContent = 'Error al conectar. Por favor, recarga la página.';
+        });
+});
+
+async function autenticarAdmin() {
+    try {
+        const passRef = database.ref('config/passwords/SUPERVISOR');
+        const snapshot = await passRef.once('value');
+        const passAdmin = snapshot.val();
+
+        if (!passAdmin) {
+            alert('Error: No se pudo obtener la contraseña de SUPERVISOR. Asegúrate de haber iniciado la app principal al menos una vez.');
+            window.location.href = 'index.html';
+            return;
+        }
+
+        const inputPass = prompt('Por favor, introduce la contraseña de SUPERVISOR para continuar:');
+
+        if (inputPass === passAdmin) {
+            document.getElementById('loader').classList.add('hidden');
+            document.getElementById('panelAjustes').classList.remove('hidden');
+            cargarContraseñasActuales();
+        } else {
+            alert('Contraseña incorrecta. Serás redirigido al panel principal.');
+            window.location.href = 'index.html';
+        }
+    } catch (error) {
+        console.error("Error al autenticar:", error);
+        alert('Hubo un error al verificar los permisos.');
+    }
+}
+
+async function cargarContraseñasActuales() {
+    const form = document.getElementById('formContraseñas');
+    form.innerHTML = '';
+    const passwordsRef = database.ref('config/passwords');
+    const snapshot = await passwordsRef.once('value');
+    const passwords = snapshot.val();
+
+    // Ordenar las claves para una mejor visualización
+    const orderedKeys = Object.keys(passwords).sort();
+
+    orderedKeys.forEach(key => {
+        const value = passwords[key];
+        const formGroup = document.createElement('div');
+        formGroup.className = 'form-group';
+        formGroup.innerHTML = `
+            <label for="pass_${key}">${key.replace(/_/g, ' ')}</label>
+            <input type="text" id="pass_${key}" value="${value}" data-key="${key}">
+        `;
+        form.appendChild(formGroup);
+    });
+}
+
+document.getElementById('btnGuardar').addEventListener('click', async () => {
+    const inputs = document.querySelectorAll('#formContraseñas input');
+    const nuevasContraseñas = {};
+
+    inputs.forEach(input => {
+        const key = input.dataset.key;
+        nuevasContraseñas[key] = input.value;
+    });
+
+    try {
+        await database.ref('config/passwords').set(nuevasContraseñas);
+        alert('✅ ¡Contraseñas actualizadas con éxito!');
+        cargarContraseñasActuales(); // Recargar para confirmar visualmente
+    } catch (error) {
+        console.error("Error al guardar las contraseñas:", error);
+        alert('❌ Error al guardar. Revisa la consola para más detalles.');
+    }
+});
+</script>
+
+</body>
+</html>
