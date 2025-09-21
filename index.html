@@ -33,12 +33,92 @@ html, body {
     radial-gradient(at 47% 33%, hsl(225, 39%, 30%) 0, transparent 59%), 
     radial-gradient(at 82% 65%, hsl(253, 16%, 7%) 0, transparent 55%);
 }
+
+/* =================== ESTILOS EXTRAÍDOS E INTEGRADOS =================== */
+
+.pantalla {
+  display: none;
+  width: 100%;
+  min-height: 100vh;
+  padding: 20px;
+  transition: opacity 0.5s ease-out;
+  position: fixed; /* Asegura que cubra toda la pantalla */
+  top: 0;
+  left: 0;
+  z-index: 9999; /* Para que esté por encima de todo */
+}
+.pantalla.activa { 
+  display: flex; 
+  flex-direction: column; 
+}
+
+/* ================= BRANDING HEADER ================= */
+.brand-title {
+  font-family: 'Times New Roman', Times, serif;
+  color: white;
+  font-size: clamp(40px, 3vw, 28px);
+  font-weight: normal;
+  text-align: center;
+  width: 100%;
+  letter-spacing: 2px;
+  margin-top: 10px;
+  margin-bottom: 5px;
+  padding: 0;
+}
+
+/* ================= SPLASH SCREEN ================= */
+#splashScreen {
+  align-items: center;
+  justify-content: center;
+  background-color: var(--bg-dark);
+}
+.splash-content {
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 15px;
+}
+.splash-logo-container {
+  border-radius: 25px;
+  margin: 20px 0;
+  padding: 15px;
+  /* Efecto Glassmorphism */
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px); /* Para Safari */
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+}
+.splash-logo {
+  width: 150px;
+  height: auto;
+  display: block;
+  border-radius: 15px;
+}
+.splash-loading {
+  font-size: 1.2rem;
+  color: var(--text-medium);
+  letter-spacing: 2px;
+}
+.splash-loading .dot {
+  animation: blink-dot 1.4s infinite;
+  opacity: 0;
+}
+.splash-loading .dot:nth-child(2) { animation-delay: 0.2s; }
+.splash-loading .dot:nth-child(3) { animation-delay: 0.4s; }
+@keyframes blink-dot { 0%, 100% { opacity: 0; } 50% { opacity: 1; } }
+
+
+/* =================== ESTILOS ORIGINALES DE AJUSTES =================== */
+
 .container {
   display: flex;
   flex-direction: column;
   align-items: center;
   padding: 20px;
   min-height: 100vh;
+  box-sizing: border-box; /* Asegura que el padding no afecte el tamaño total */
 }
 .panel-ajustes {
   width: 100%;
@@ -53,6 +133,7 @@ html, body {
 h1 {
   text-align: center;
   margin-bottom: 30px;
+  margin-top: 0;
 }
 .form-group {
   margin-bottom: 20px;
@@ -103,8 +184,19 @@ h1 {
 </head>
 <body>
 
+<section id="splashScreen" class="pantalla activa">
+    <div class="splash-content">
+        <p class="brand-title">CORNING</p>
+        <div class="splash-logo-container">
+             <img src="iconolog-512.PNG" alt="Logo" class="splash-logo">
+        </div>
+        <p class="splash-loading">Cargando<span class="dot">.</span><span class="dot">.</span><span class="dot">.</span></p>
+    </div>
+</section>
+
 <div class="container">
     <div id="panelAjustes" class="panel-ajustes hidden">
+        <p class="brand-title">CORNING</p>
         <h1>🔑 Administración de Contraseñas</h1>
         <form id="formContraseñas">
             </form>
@@ -129,16 +221,27 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const database = firebase.database();
 
-// --- Lógica de la página de Ajustes ---
+// --- Lógica de la página de Ajustes (MODIFICADA) ---
 window.addEventListener('load', () => {
-    firebase.auth().signInAnonymously()
-        .then(() => {
-            autenticarAdmin();
-        })
-        .catch(error => {
-            console.error("Error de autenticación anónima:", error);
-            document.getElementById('loader').textContent = 'Error al conectar. Por favor, recarga la página.';
-        });
+    // 1. Iniciar la lógica de la pantalla de carga
+    setTimeout(() => {
+        const splash = document.getElementById('splashScreen');
+        splash.style.opacity = '0';
+        splash.addEventListener('transitionend', () => {
+            splash.style.display = 'none'; // Ocultar completamente la splash screen
+
+            // 2. Ejecutar la lógica original de la app de ajustes
+            firebase.auth().signInAnonymously()
+                .then(() => {
+                    autenticarAdmin();
+                })
+                .catch(error => {
+                    console.error("Error de autenticación anónima:", error);
+                    document.getElementById('loader').textContent = 'Error al conectar. Por favor, recarga la página.';
+                });
+
+        }, { once: true });
+    }, 1500); // Muestra la splash screen por 1.5 segundos
 });
 
 async function autenticarAdmin() {
