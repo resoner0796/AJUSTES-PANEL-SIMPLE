@@ -4,6 +4,12 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Ajustes - Panel Logística</title>
+
+<meta name="theme-color" content="#111827">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="iconolog-512.PNG"> 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
@@ -351,7 +357,14 @@ function activarPantalla(id){
 }
 
 window.addEventListener('load', () => {
-    // 1. Iniciar la lógica de la pantalla de carga
+    // 1. Registrar el Service Worker para la PWA
+    if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('./sw.js')
+            .then(reg => console.log('✅ Service Worker Registrado:', reg))
+            .catch(err => console.error('❌ Error al registrar Service Worker:', err));
+    }
+    
+    // 2. Iniciar la lógica de la pantalla de carga
     setTimeout(() => {
         const splash = document.getElementById('splashScreen');
         splash.style.opacity = '0';
