@@ -23,9 +23,11 @@
   --font-family: 'Poppins', sans-serif;
   --border-radius-md: 16px;
   --border-radius-sm: 10px;
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1);
 }
 html, body {
   margin: 0;
+  height: 100%;
   font-family: var(--font-family);
   color: var(--text-light);
   background-color: var(--bg-dark);
@@ -34,25 +36,27 @@ html, body {
     radial-gradient(at 82% 65%, hsl(253, 16%, 7%) 0, transparent 55%);
 }
 
-/* =================== ESTILOS EXTRAÍDOS E INTEGRADOS =================== */
-
+/* =================== ESTILOS GENERALES Y SPLASH SCREEN =================== */
 .pantalla {
   display: none;
   width: 100%;
   min-height: 100vh;
   padding: 20px;
   transition: opacity 0.5s ease-out;
-  position: fixed; /* Asegura que cubra toda la pantalla */
-  top: 0;
-  left: 0;
-  z-index: 9999; /* Para que esté por encima de todo */
+  box-sizing: border-box;
 }
 .pantalla.activa { 
   display: flex; 
   flex-direction: column; 
+  align-items: center;
+  justify-content: center;
 }
-
-/* ================= BRANDING HEADER ================= */
+#splashScreen {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 9999;
+}
 .brand-title {
   font-family: 'Times New Roman', Times, serif;
   color: white;
@@ -65,12 +69,8 @@ html, body {
   margin-bottom: 5px;
   padding: 0;
 }
-
-/* ================= SPLASH SCREEN ================= */
-#splashScreen {
-  align-items: center;
-  justify-content: center;
-  background-color: var(--bg-dark);
+#splashScreen .brand-title {
+    margin-bottom: 20px;
 }
 .splash-content {
   text-align: center;
@@ -83,10 +83,9 @@ html, body {
   border-radius: 25px;
   margin: 20px 0;
   padding: 15px;
-  /* Efecto Glassmorphism */
   background: rgba(255, 255, 255, 0.1);
   backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px); /* Para Safari */
+  -webkit-backdrop-filter: blur(8px);
   border: 1px solid rgba(255, 255, 255, 0.15);
   box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
 }
@@ -109,18 +108,14 @@ html, body {
 .splash-loading .dot:nth-child(3) { animation-delay: 0.4s; }
 @keyframes blink-dot { 0%, 100% { opacity: 0; } 50% { opacity: 1; } }
 
-
-/* =================== ESTILOS ORIGINALES DE AJUSTES =================== */
-
-.container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 20px;
-  min-height: 100vh;
-  box-sizing: border-box; /* Asegura que el padding no afecte el tamaño total */
+/* =================== ESTILOS PANELES DE CONTENIDO =================== */
+h1 {
+  text-align: center;
+  margin-top: 0;
+  margin-bottom: 30px;
+  font-size: clamp(28px, 5vw, 42px);
 }
-.panel-ajustes {
+.panel-contenido {
   width: 100%;
   max-width: 600px;
   padding: 30px;
@@ -130,14 +125,7 @@ html, body {
   -webkit-backdrop-filter: blur(15px);
   border: 1px solid rgba(255, 255, 255, 0.15);
 }
-h1 {
-  text-align: center;
-  margin-bottom: 30px;
-  margin-top: 0;
-}
-.form-group {
-  margin-bottom: 20px;
-}
+.form-group { margin-bottom: 20px; }
 .form-group label {
   display: block;
   margin-bottom: 8px;
@@ -169,17 +157,75 @@ h1 {
   font-size: 16px;
   font-weight: 600;
   cursor: pointer;
-  transition: background .2s ease;
+  transition: background .2s ease, transform .2s ease;
   width: 100%;
   margin-top: 10px;
 }
-.btn:hover { background: rgba(59, 130, 246, 0.4); }
+.btn:hover { background: rgba(59, 130, 246, 0.4); transform: translateY(-2px); }
 .btn.btn-save { background-color: rgba(16, 185, 129, 0.3); }
 .btn.btn-save:hover { background-color: rgba(16, 185, 129, 0.5); }
-.btn.btn-back { background-color: rgba(249, 250, 251, 0.2); }
-.btn.btn-back:hover { background-color: rgba(249, 250, 251, 0.35); }
-#loader { text-align: center; font-size: 1.2rem; }
-.hidden { display: none; }
+.btn.btn-back { background-color: rgba(239, 68, 68, 0.3); }
+.btn.btn-back:hover { background-color: rgba(239, 68, 68, 0.5); }
+
+/* =================== ESTILOS PARA MODALES =================== */
+.modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(5px);
+  -webkit-backdrop-filter: blur(5px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  visibility: hidden;
+  opacity: 0;
+  transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+.modal.visible { visibility: visible; opacity: 1; }
+.modal-content {
+  padding: 30px;
+  text-align: center;
+  width: 90%;
+  max-width: 500px;
+  box-shadow: var(--shadow-lg);
+  border-radius: var(--border-radius-md);
+  background: rgba(31, 41, 55, 0.7);
+  backdrop-filter: blur(15px);
+  -webkit-backdrop-filter: blur(15px);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+}
+.modal-content h3 { margin-top: 0; font-size: 22px; margin-bottom: 25px; }
+.modal-generic-message {
+  font-size: 16px;
+  color: var(--text-medium);
+  margin-bottom: 25px;
+  line-height: 1.6;
+}
+.modal-prompt-input {
+  width: 100%;
+  padding: 12px;
+  border-radius: var(--border-radius-sm);
+  color: var(--text-light);
+  font-size: 16px;
+  font-family: var(--font-family);
+  background: rgba(17, 24, 39, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+.modal-prompt-input:focus {
+    outline: none;
+    border-color: var(--accent-blue);
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.5);
+}
+.modal-buttons {
+  display: flex;
+  justify-content: flex-end;
+  gap: 15px;
+  margin-top: 20px;
+}
 </style>
 </head>
 <body>
@@ -194,20 +240,48 @@ h1 {
     </div>
 </section>
 
-<div class="container">
-    <div id="panelAjustes" class="panel-ajustes hidden">
+<section id="pantallaPrincipal" class="pantalla">
+    <div class="panel-contenido">
         <p class="brand-title">CORNING</p>
-        <h1>🔑 Administración de Contraseñas</h1>
-        <form id="formContraseñas">
-            </form>
-        <button id="btnGuardar" class="btn btn-save">Guardar Cambios</button>
-        <button onclick="window.location.href='index.html'" class="btn btn-back">Volver al Panel</button>
+        <h1>AJUSTES</h1>
+        <button id="btnConfig" class="btn">CONFIGURACIÓN</button>
     </div>
-    <div id="loader">Cargando...</div>
+</section>
+
+<section id="panelAjustes" class="pantalla">
+    <div class="panel-contenido">
+        <p class="brand-title">CORNING</p>
+        <h1>🔑 Administración</h1>
+        <form id="formContraseñas"></form>
+        <button id="btnGuardar" class="btn btn-save">Guardar Cambios</button>
+        <button id="btnVolver" class="btn btn-back">Volver</button>
+    </div>
+</section>
+
+<div id="modalAlert" class="modal">
+    <div class="modal-content">
+        <h3 id="modalAlertTitle">Notificación</h3>
+        <p id="modalAlertMessage" class="modal-generic-message"></p>
+        <div class="modal-buttons" style="justify-content: center;">
+            <button id="modalAlertOk" class="btn">OK</button>
+        </div>
+    </div>
+</div>
+<div id="modalPrompt" class="modal">
+    <div class="modal-content">
+        <h3 id="modalPromptTitle">Introducir Datos</h3>
+        <p id="modalPromptMessage" class="modal-generic-message"></p>
+        <input type="password" id="modalPromptInput" class="modal-prompt-input" autocomplete="off" />
+        <div class="modal-buttons">
+            <button id="modalPromptCancel" class="btn btn-back">Cancelar</button>
+            <button id="modalPromptOk" class="btn">Aceptar</button>
+        </div>
+    </div>
 </div>
 
+
 <script>
-// --- Configuración de Firebase (debe ser la misma que en index.html) ---
+// --- Configuración de Firebase ---
 const firebaseConfig = {
   apiKey: "AIzaSyDahnSPvBNTYot00JCn5CBjggAYFVGhbjE",
   authDomain: "panel-logistica-simple.firebaseapp.com",
@@ -221,27 +295,84 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const database = firebase.database();
 
-// --- Lógica de la página de Ajustes (MODIFICADA) ---
+// ======================= MODALES PERSONALIZADOS =======================
+const customAlert = (message, title = "Notificación") => {
+    return new Promise(resolve => {
+        const modal = document.getElementById('modalAlert');
+        document.getElementById('modalAlertTitle').textContent = title;
+        document.getElementById('modalAlertMessage').textContent = message;
+        modal.classList.add('visible');
+        const okButton = document.getElementById('modalAlertOk');
+        const closeListener = () => {
+            modal.classList.remove('visible');
+            okButton.removeEventListener('click', closeListener);
+            resolve();
+        };
+        okButton.addEventListener('click', closeListener);
+    });
+};
+
+const customPrompt = (message, title = "Autenticación Requerida") => {
+    return new Promise(resolve => {
+        const modal = document.getElementById('modalPrompt');
+        const input = document.getElementById('modalPromptInput');
+        document.getElementById('modalPromptTitle').textContent = title;
+        document.getElementById('modalPromptMessage').textContent = message;
+        input.value = '';
+        modal.classList.add('visible');
+        setTimeout(() => input.focus(), 50);
+        const okButton = document.getElementById('modalPromptOk');
+        const cancelButton = document.getElementById('modalPromptCancel');
+        const resolveListener = (value) => {
+            modal.classList.remove('visible');
+            okButton.removeEventListener('click', okListener);
+            cancelButton.removeEventListener('click', cancelListener);
+            input.removeEventListener('keydown', enterListener);
+            resolve(value);
+        };
+        const okListener = () => resolveListener(input.value);
+        const cancelListener = () => resolveListener(null);
+        const enterListener = (e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                okListener();
+            }
+        };
+        okButton.addEventListener('click', okListener);
+        cancelButton.addEventListener('click', cancelListener);
+        input.addEventListener('keydown', enterListener);
+    });
+};
+
+// --- Lógica de la página ---
+function activarPantalla(id){
+    document.querySelectorAll('.pantalla').forEach(p => p.classList.remove('activa'));
+    document.getElementById(id).classList.add('activa');
+}
+
 window.addEventListener('load', () => {
     // 1. Iniciar la lógica de la pantalla de carga
     setTimeout(() => {
         const splash = document.getElementById('splashScreen');
         splash.style.opacity = '0';
         splash.addEventListener('transitionend', () => {
-            splash.style.display = 'none'; // Ocultar completamente la splash screen
-
-            // 2. Ejecutar la lógica original de la app de ajustes
-            firebase.auth().signInAnonymously()
-                .then(() => {
-                    autenticarAdmin();
-                })
-                .catch(error => {
-                    console.error("Error de autenticación anónima:", error);
-                    document.getElementById('loader').textContent = 'Error al conectar. Por favor, recarga la página.';
-                });
-
+            splash.remove(); // Eliminar la splash screen del DOM
+            activarPantalla('pantallaPrincipal'); // Mostrar la pantalla principal
         }, { once: true });
-    }, 1500); // Muestra la splash screen por 1.5 segundos
+    }, 1500);
+});
+
+document.getElementById('btnConfig').addEventListener('click', () => {
+    firebase.auth().signInAnonymously()
+        .then(autenticarAdmin)
+        .catch(async (error) => {
+            console.error("Error de autenticación anónima:", error);
+            await customAlert('Error al conectar. Por favor, recarga la página.', 'Error de Conexión');
+        });
+});
+
+document.getElementById('btnVolver').addEventListener('click', () => {
+    activarPantalla('pantallaPrincipal');
 });
 
 async function autenticarAdmin() {
@@ -251,24 +382,23 @@ async function autenticarAdmin() {
         const passAdmin = snapshot.val();
 
         if (!passAdmin) {
-            alert('Error: No se pudo obtener la contraseña de SUPERVISOR. Asegúrate de haber iniciado la app principal al menos una vez.');
-            window.location.href = 'index.html';
+            await customAlert('Error: No se pudo obtener la contraseña de SUPERVISOR. Asegúrate de haber iniciado la app principal al menos una vez.', 'Error de Configuración');
             return;
         }
 
-        const inputPass = prompt('Por favor, introduce la contraseña de SUPERVISOR para continuar:');
+        const inputPass = await customPrompt('Por favor, introduce la contraseña de SUPERVISOR para continuar:');
+
+        if (inputPass === null) return; // El usuario canceló
 
         if (inputPass === passAdmin) {
-            document.getElementById('loader').classList.add('hidden');
-            document.getElementById('panelAjustes').classList.remove('hidden');
+            activarPantalla('panelAjustes');
             cargarContraseñasActuales();
         } else {
-            alert('Contraseña incorrecta. Serás redirigido al panel principal.');
-            window.location.href = 'index.html';
+            await customAlert('Contraseña incorrecta. Inténtalo de nuevo.', 'Acceso Denegado');
         }
     } catch (error) {
         console.error("Error al autenticar:", error);
-        alert('Hubo un error al verificar los permisos.');
+        await customAlert('Hubo un error al verificar los permisos.', 'Error');
     }
 }
 
@@ -278,8 +408,6 @@ async function cargarContraseñasActuales() {
     const passwordsRef = database.ref('config/passwords');
     const snapshot = await passwordsRef.once('value');
     const passwords = snapshot.val();
-
-    // Ordenar las claves para una mejor visualización
     const orderedKeys = Object.keys(passwords).sort();
 
     orderedKeys.forEach(key => {
@@ -297,19 +425,14 @@ async function cargarContraseñasActuales() {
 document.getElementById('btnGuardar').addEventListener('click', async () => {
     const inputs = document.querySelectorAll('#formContraseñas input');
     const nuevasContraseñas = {};
-
-    inputs.forEach(input => {
-        const key = input.dataset.key;
-        nuevasContraseñas[key] = input.value;
-    });
+    inputs.forEach(input => nuevasContraseñas[input.dataset.key] = input.value);
 
     try {
         await database.ref('config/passwords').set(nuevasContraseñas);
-        alert('✅ ¡Contraseñas actualizadas con éxito!');
-        cargarContraseñasActuales(); // Recargar para confirmar visualmente
+        await customAlert('¡Contraseñas actualizadas con éxito!', 'Guardado');
     } catch (error) {
         console.error("Error al guardar las contraseñas:", error);
-        alert('❌ Error al guardar. Revisa la consola para más detalles.');
+        await customAlert('Error al guardar. Revisa la consola para más detalles.', 'Error');
     }
 });
 </script>
